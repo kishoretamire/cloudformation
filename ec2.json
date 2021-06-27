@@ -1,0 +1,85 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+	"Description" : "Create EC2 Instance with securitygroup",
+
+	"Parameters":{
+		"KeyName":{
+			"Description": "Provide key to connect to EC2 Instance",
+			"Type" : "AWS::EC2::KeyPair::KeyName"
+		},
+
+		"InstanceType": {
+			"Description" : "WebServer EC2 instance type",
+			"Type" : "String",
+			"Default": "t2.micro",
+			"AllowedValues": [ "t1.micro", "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large" ]
+		}
+	},
+	"Resources": {
+			"EC2Instance": {
+				"Type": "AWS::EC2::Instance",
+				"Properties":{
+					"InstanceType":{
+						"Ref": "InstanceType"
+					},
+					"SecurityGroups": [{
+						"Ref": "InstanceSecurityGroup"
+					}],
+					"KeyName": {
+						"Ref" : "KeyName"
+					},
+					"ImageId": "ami-0721c9af7b9b75114"
+				}
+			},
+			"InstanceSecurityGroup": {
+				"Type": "AWS::EC2::SecurityGroup",
+				"Properties": {
+					"GroupDescription": "Enable SSH access via port 22",
+					"SecurityGroupIngress": [
+						{
+							"IpProtocol": "tcp",
+							"FromPort": "22",
+							"ToPort": "22",
+							"CidrIp": "0.0.0.0/0"
+						}
+					]
+				}
+			}
+		},
+		
+	"Outputs": {
+			"InstanceId": {
+				"Description": "InstanceID of newly Created EC2 Instance",
+				"Value": {
+					"Ref": "EC2Instance"
+				}
+			},
+			"AZ": {
+					"Description" : "Avaliblity zone of the crated EC2",
+					"Value": {
+						"Fn::GetAtt": [
+							"EC2Instance",
+							"AvailabilityZone"
+						]
+					}
+				},
+				"PublicDNS":{
+					"Description": "Public DNS of new EC2",
+					"Value": {
+						"Fn::GetAtt": [
+							"EC2Instance",
+							"PublicDnsName"
+						]
+					}
+				},
+				"PublicIP":{
+					"Description": "Public IP of new EC2",
+					"Value": {
+						"Fn::GetAtt": [
+							"EC2Instance",
+							"PublicIp"
+						]
+					}
+				}
+			}
+}
